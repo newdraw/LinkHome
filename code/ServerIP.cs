@@ -13,30 +13,33 @@ namespace LinkHome
     static class ServerIP
     {
         static Func<string>[] getIpFuncs = new Func<string>[] {
-            getServerIPSohu,
-            getServerIPIfconfig,
-            getServerIPTrackip
+            getServerIP_Ctrip,
+            getServerIP_IPCN,
+            //getServerIPIfconfig,
+            //getServerIPTrackip
         };
-         
 
+
+        /// <summary>
+        /// 获得当前服务器ip
+        /// </summary>
+        /// <param name="errorCallback"></param>
+        /// <returns></returns>
         public static string Get(ErrorHandler errorCallback = null)
-        {
-            var i = 0;
+        { 
             while (true)
             {
-                try
+                foreach (var func in getIpFuncs)
                 {
-                    return getIpFuncs[i]();
-                }
-                catch (Exception ex)
-                {
-                    errorCallback?.Invoke(ex.Message);
-                    i++;
-                    if (i == getIpFuncs.Length)
+                    try
                     {
-                        i = 0;
+                        return func();
                     }
-                    Thread.Sleep(100);
+                    catch (Exception ex)
+                    {
+                        errorCallback?.Invoke(ex.Message);
+                        Thread.Sleep(100);
+                    }
                 }
             }
         }
@@ -44,29 +47,38 @@ namespace LinkHome
         static string getResponse(string url)
         {
             var http = WebRequest.CreateHttp(url);
+            http.UserAgent = "Mozilla/5.0";
+            //http.Accept = "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7";
             using var response = http.GetResponse();
             using var stream = response.GetResponseStream();
             using var reader = new StreamReader(stream);
             return reader.ReadToEnd();
         }
-        static string getServerIPTrackip()
+        //static string getServerIPTrackip()
+        //{
+        //    var json = getResponse(@"http://www.trackip.net/ip?json");
+        //    var serializer = new JavaScriptSerializer();
+        //    var data = (Dictionary<string, object>)serializer.DeserializeObject(json);
+        //    return (string)data["IP"];
+        //}
+
+        //static string getServerIPIfconfig()
+        //{
+        //    return getResponse(@"http://ifconfig.me/ip");
+        //}
+
+   
+
+        static string getServerIP_Ctrip() {
+            return getResponse(@"https://cdid.c-ctrip.com/model-poc2/h");
+        }
+
+        static string getServerIP_IPCN()
         {
-            var json = getResponse(@"http://www.trackip.net/ip?json");
+            var json = getResponse(@"https://www.ip.cn/api/index?type=0");
             var serializer = new JavaScriptSerializer();
             var data = (Dictionary<string, object>)serializer.DeserializeObject(json);
-            return (string)data["IP"];
-        }
-
-        static string getServerIPIfconfig()
-        {
-            return getResponse(@"http://ifconfig.me/ip");
-        }
-
-        static string getServerIPSohu()
-        {
-            var js = getResponse(@"http://pv.sohu.com/cityjson?ie=utf-8");
-            var tokens = js.Split('\"');
-            return tokens[3];
+            return (string)data["ip"]; 
         }
     }
 }
