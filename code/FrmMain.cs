@@ -44,8 +44,15 @@ namespace LinkHome
 
         const string settingsPath = @".\settings.bin";
 
+        /// <summary>
+        /// 本地缓存的域名信息
+        /// </summary>
         Dictionary<string, DomainInfo> infos;
+        /// <summary>
+        /// 配置
+        /// </summary>
         Config config;
+
         AliDDnsUtils ali;
 
         public FrmMain()
@@ -57,8 +64,13 @@ namespace LinkHome
         T invoke<T>(Func<T> act)
         {
             return (T)this.Invoke(act);
-        }    
-  
+        }
+
+        void invoke<T>(Action act)
+        { 
+            this.Invoke(act);
+        }
+
 
         string makeSubdomain(string rr, string domain)
         {
@@ -91,12 +103,17 @@ namespace LinkHome
             new Thread(refreshProc) { IsBackground = true }.Start();
         }
 
+        void showInfo(string text)
+        {
+            invoke(() => lblStatus.Text = text);
+        }
+
         void refresh()
         {
-
+            //检查是否进行了配置
             if (string.IsNullOrWhiteSpace(config.AccessKeyID) || string.IsNullOrWhiteSpace(config.AccessKeySecret))
             {
-                lblStatus.Text = "请先在设置中配置AccessKeyID和AccessKeySecret"; 
+                showInfo("请先在设置中配置AccessKeyID和AccessKeySecret");
                 return;
             }
 
@@ -104,44 +121,44 @@ namespace LinkHome
             {
                 var ip = ServerIP.Get(errorHandler);
                 var domains = ali.GetDomains();
-                var exist = new HashSet<string>();
-                foreach (var domain in domains)
-                { 
-                    foreach (var rec in ali.GetRecords(domain))
+                var exist = new HashSet<string>(); //存在于线上的域名
+                foreach (var domain in domains) //遍历所有域名
+                {
+                    foreach (var rec in ali.GetRecords(domain)) //遍历所有解析记录
                     {
                         if (rec.Type != "A" && rec.Type != "CNAME")
                         {
                             continue;
                         }
 
-                        var key = makeSubdomain(rec.RR, rec.DomainName);
-                        exist.Add(key);
+                        var subdomian = makeSubdomain(rec.RR, rec.DomainName);
+                        exist.Add(subdomian);
 
-                        //
-                        infos.TryGetValue(key, out var info);
+                        infos.TryGetValue(subdomian, out var info);//本地缓存的域名信息
 
-                        if (info == null)
+                        if (info == null) //没有本地缓存则简历
                         {
                             info = new DomainInfo
                             {
                                 DDns = false,
-                                Subdomain = key
+                                Subdomain = subdomian
                             };
-                            infos.Add(key, info);
+                            infos.Add(subdomian, info);
                         }
 
-                        if (info.Row == null)
+                        if (info.Row == null) //没有对应的列表行则简历
                         {
-                            var rowIndex = invoke(() => grid.Rows.Add(key, info.DDns, ""));
+                            var rowIndex = invoke(() => grid.Rows.Add(subdomian, info.DDns, ""));
                             info.Row = grid.Rows[rowIndex];
                         }
 
-                        // 
-                        var localDnsStatus = @try(() => Dns.GetHostAddresses(key).FirstOrDefault(i => i.ToString() == ip) != null, false);
-                        var dnsConfigStatus = rec._Value == ip && rec.Type == "A";
+                        //
                         var status = "";
-                        if (info.DDns)
+                        if (info.DDns) //打开了ddns
                         {
+                            var localDnsStatus = @try(() => Dns.GetHostAddresses(subdomian).FirstOrDefault(i => i.ToString() == ip) != null, false);
+                            var dnsConfigStatus = rec._Value == ip && rec.Type == "A";
+                            
                             if (localDnsStatus && dnsConfigStatus)
                             {
                                 status = "正常";
@@ -158,7 +175,7 @@ namespace LinkHome
                                 info.LastIP = ip;
                             }
                         }
-                        info.Row.Cells[2].Value = status; 
+                        info.Row.Cells[2].Value = status;
 
                         //
                         info.ID = rec.RecordId;
@@ -180,7 +197,7 @@ namespace LinkHome
                     }
                     saveSettings();
                 }
-                lblStatus.Text = $"当前IP：{ip} 最后更新时间：{DateTime.Now}";
+                showInfo($"当前IP：{ip} 最后更新时间：{DateTime.Now}");
             }
 
         }

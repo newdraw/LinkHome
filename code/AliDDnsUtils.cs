@@ -44,12 +44,20 @@ namespace LinkHome
             }
         }
 
+        /// <summary>
+        /// 获得注册的域名
+        /// </summary>
+        /// <returns></returns>
         public List<DescribeDomains_Domain> GetDomains()
         {
             return getResponse(new DescribeDomainsRequest()).Domains;
         } 
 
-
+        /// <summary>
+        /// 获得域名解析记录
+        /// </summary>
+        /// <param name="domain"></param>
+        /// <returns></returns>
         public List<DescribeDomainRecords_Record> GetRecords(DescribeDomains_Domain domain)
         {
             var req = new DescribeDomainRecordsRequest();
