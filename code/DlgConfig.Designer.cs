@@ -200,12 +200,12 @@
             // btnHowToGetAccessKey
             // 
             this.btnHowToGetAccessKey.AutoSize = true;
-            this.btnHowToGetAccessKey.Location = new System.Drawing.Point(254, 36);
+            this.btnHowToGetAccessKey.Location = new System.Drawing.Point(236, 32);
             this.btnHowToGetAccessKey.Name = "btnHowToGetAccessKey";
-            this.btnHowToGetAccessKey.Size = new System.Drawing.Size(227, 12);
+            this.btnHowToGetAccessKey.Size = new System.Drawing.Size(245, 12);
             this.btnHowToGetAccessKey.TabIndex = 18;
             this.btnHowToGetAccessKey.TabStop = true;
-            this.btnHowToGetAccessKey.Text = "如何获取AccessKeyId和AccessKeySecret?";
+            this.btnHowToGetAccessKey.Text = "去控制台获取AccessKeyId和AccessKeySecret";
             this.btnHowToGetAccessKey.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.btnHowToGetAccessKey_LinkClicked);
             // 
             // DlgConfig
