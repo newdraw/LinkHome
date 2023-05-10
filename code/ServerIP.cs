@@ -47,7 +47,12 @@ namespace LinkHome
         static string getResponse(string url)
         {
             var http = WebRequest.CreateHttp(url);
+            //减小获取IP地址的超时时间，防止系统卡。
+            http.Timeout = 10 * 1000;
+            http.ContinueTimeout = 1000;
+            http.ReadWriteTimeout = 10 * 1000;
             http.UserAgent = "Mozilla/5.0";
+            http.Proxy = null; //防止系统代理改变IP
             //http.Accept = "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7";
             using var response = http.GetResponse();
             using var stream = response.GetResponseStream();
