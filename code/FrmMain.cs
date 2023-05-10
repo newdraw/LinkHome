@@ -42,7 +42,7 @@ namespace LinkHome
             }
         }
 
-        const string settingsPath = @".\settings.bin";
+        readonly string settingsPath = Path.Combine(Path.GetDirectoryName(Application.ExecutablePath), "settings.bin");
 
         /// <summary>
         /// 本地缓存的域名信息
@@ -126,7 +126,7 @@ namespace LinkHome
                 {
                     foreach (var rec in ali.GetRecords(domain)) //遍历所有解析记录
                     {
-                        if (rec.Type != "A" && rec.Type != "CNAME")
+                        if (rec.Type != "A")
                         {
                             continue;
                         }
