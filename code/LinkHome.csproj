@@ -36,6 +36,9 @@
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>8170420_1_.ico</ApplicationIcon>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="aliyun-net-sdk-alidns, Version=2.6.32.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>packages\aliyun-net-sdk-alidns.2.6.32\lib\net45\aliyun-net-sdk-alidns.dll</HintPath>
@@ -100,6 +103,9 @@
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="8170420_1_.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
