@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
+using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -46,7 +48,17 @@ namespace LinkHome
 
         static string getResponse(string url)
         {
-            var http = WebRequest.CreateHttp(url);
+              
+            var uri = new Uri(url);
+            var addrs = Dns.GetHostAddresses(uri.Host);
+            var addr = addrs.FirstOrDefault(i => i.AddressFamily == AddressFamily.InterNetwork);
+            if (addr == null) {
+                throw new Exception("本机或服务器不支持IPv4");
+            }
+            
+            url = url.Replace(uri.Host, addr.ToString()); //确保用ipv4访问服务器，防止返回ipv6地址。
+            var http = WebRequest.CreateHttp(url); 
+            http.Host = uri.Host;
             //减小获取IP地址的超时时间，防止系统卡。
             http.Timeout = 10 * 1000;
             http.ContinueTimeout = 1000;
